@@ -58,21 +58,11 @@ def printStandings(finalTable):
                 currentMax = len(finalTable[row][col])
         colWidths.append(currentMax + 2)
 
-    #print(finalTable[3])
-    #print(len(finalTable[3]))
-
     for row in finalTable:
         currentRow = ""
         for col in range(len(row)):
-            #print(col)
-            #print(len(row))
             currentRow += row[col].ljust(colWidths[col])
         print(currentRow)
-
-    # Width and padding
-    #colWidth = max(len(word) for row in finalTable for word in row)
-    #for row in finalTable:
-    #    print("".join(word.ljust(colWidth) for word in row))
 
 def main():
     # Retrieve global input
