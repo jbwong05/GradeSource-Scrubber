@@ -28,11 +28,18 @@ def getHeader(rows, finalTable):
 
         for col in currentRow:
             finalRow.append(unicode(col.text))
+
+            # Accounts for one header covering multiple columns
+            if 'colspan' in col.attrs:
+                numCols = int(col.attrs['colspan'])
+                for extraCols in range(numCols - 1):
+                    finalRow.append('')
+
         finalTable.append(finalRow)
         del rows[0]
 
 def getStudent(rows, number, finalTable):
-    # Finds and adds student
+    # Finds and adds student to table
     for student in rows:
         if unicode(student.contents[1].string) == number:
             studentRow = []
@@ -43,6 +50,7 @@ def getStudent(rows, number, finalTable):
             return
 
 def removeSpaces(finalTable):
+    # Removes all unnecessary spaces used for padding
     for row in finalTable:
         for col in row:
             if col == ' ':
@@ -51,6 +59,7 @@ def removeSpaces(finalTable):
 def printStandings(finalTable):
     colWidths = []
     
+    # Calculates column widths
     for col in range(len(finalTable[1])):
         currentMax = 0
         for row in range(len(finalTable)):
@@ -58,6 +67,7 @@ def printStandings(finalTable):
                 currentMax = len(finalTable[row][col])
         colWidths.append(currentMax + 2)
 
+    # Prints each row
     for row in finalTable:
         currentRow = ""
         for col in range(len(row)):
