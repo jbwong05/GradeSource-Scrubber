@@ -11,6 +11,11 @@ def getRows(soup):
     table = soup.find('table', attrs={'cellpadding': '3', 'cellspacing': '0','border': '1'})
     return table.contents
 
+def getStandingsTable(soup):
+    # Retrieves all rows from standings table on course webpage
+    tables = soup.findAll('td', attrs={'width': '50%'})
+    return tables[1]
+
 def cleanRows(rows):
     extraStringType = type(rows[0])
 
@@ -18,6 +23,30 @@ def cleanRows(rows):
     for obj in rows:
         if type(obj) == extraStringType:
             rows.remove(obj)
+
+def getMenuContents(rows, menuTable, linkTable):
+    for row in rows:
+        # Gets row contents
+        rowContents = row.contents
+        removeListSpaces(rowContents)
+
+        # Loops through tags in each row
+        for tag in rowContents:
+            tagContents = tag.contents
+            removeListSpaces(tagContents)
+
+            # Checks if link and not just text
+            if len(tagContents[0].contents) > 1:
+                menuTable.append(tagContents[0].contents[1].string)
+                linkTable.append(tagContents[0].contents[1]['href'])
+
+def printMenu(menuTable):
+    # Print menu
+    counter = 1
+    for option in menuTable:
+        print(str(counter) + '. ' + option)
+        counter += 1
+  
 
 def getHeader(rows, finalTable):
     # Adds table header
@@ -49,12 +78,17 @@ def getStudent(rows, number, finalTable):
             finalTable.append(studentRow)
             return
 
-def removeSpaces(finalTable):
+def removeTableSpaces(finalTable):
     # Removes all unnecessary spaces used for padding
     for row in finalTable:
         for col in row:
             if col == ' ':
                 row.remove(col)
+
+def removeListSpaces(theList):
+    for obj in theList:
+        if obj == ' ':
+            theList.remove(obj)
 
 def printStandings(finalTable):
     colWidths = []
@@ -76,34 +110,61 @@ def printStandings(finalTable):
 
 def main():
     # Retrieve global input
-    link = raw_input("Enter Gradesource class link: ")
+    originalLink = raw_input("Enter Gradesource class link: ")
     number = raw_input("Enter secret number: ")
 
-    # Changes link to standings
-    link = link.replace("index.html", "coursestand.html")
-
     # Setsup soup
-    soup = setupSoup(link)
+    soup = setupSoup(originalLink)
     
-    # Retrieves standings table rows
-    rows = getRows(soup)
+    # Retrieves standings table
+    table = getStandingsTable(soup)
     
-    # Removes extra String objects
+    # Retrieve table rows
+    rows = table.table.contents
+
     cleanRows(rows)
 
-    finalTable = []
+    menuTable = []
+    linkTable = []
 
-    # Retrieve header
-    getHeader(rows, finalTable)
+    getMenuContents(rows, menuTable, linkTable)
 
-    # Retrieve student
-    getStudent(rows, number, finalTable)
-    
-    # Removes uneccesary spaces
-    removeSpaces(finalTable)
+    option = ''
 
-    # Prints the standings
-    printStandings(finalTable)
+    while option != 'q':
+        printMenu(menuTable)
+
+        option = raw_input("Enter selection (q to quit): ")
+        
+        if option != 'q':
+            # Switches link
+            link = originalLink
+            link = link.replace("index.html", str(linkTable[int(option) - 1]))
+
+            # Reset soup
+            soup = setupSoup(link)
+
+            # Retrieves standings table rows
+            rows = getRows(soup)
+            
+            # Removes extra String objects
+            cleanRows(rows)
+
+            finalTable = []
+
+            # Retrieve header
+            getHeader(rows, finalTable)
+
+            # Retrieve student
+            getStudent(rows, number, finalTable)
+            
+            # Removes uneccesary spaces
+            removeTableSpaces(finalTable)
+
+            # Prints the standings
+            printStandings(finalTable)
+            
+            option = raw_input("Press any key to return to the menu (q to quit)... ")
 
 
 main()
