@@ -10,6 +10,8 @@ else
     echo "PASS!"
 fi
 
+pip3 install -r requirements.txt
+
 echo '#!/usr/bin/python3' > graderetriever
 cat ./GradeRetriever.py >> graderetriever
 
