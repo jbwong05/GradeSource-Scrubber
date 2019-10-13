@@ -1,4 +1,5 @@
 import requests
+import sys
 from bs4 import BeautifulSoup
 
 def setupSoup(link):
@@ -56,7 +57,7 @@ def getHeader(rows, finalTable):
         cleanRows(currentRow)
 
         for col in currentRow:
-            finalRow.append(unicode(col.text))
+            finalRow.append(str(col.text))
 
             # Accounts for one header covering multiple columns
             if 'colspan' in col.attrs:
@@ -70,10 +71,10 @@ def getHeader(rows, finalTable):
 def getStudent(rows, number, finalTable):
     # Finds and adds student to table
     for student in rows:
-        if unicode(student.contents[1].string) == number:
+        if str(student.contents[1].string) == number:
             studentRow = []
             for col in student.contents:
-                studentRow.append(unicode(col.string))
+                studentRow.append(str(col.string))
                 
             finalTable.append(studentRow)
             return
@@ -110,8 +111,12 @@ def printStandings(finalTable):
 
 def main():
     # Retrieve global input
-    originalLink = raw_input("Enter Gradesource class link: ")
-    number = raw_input("Enter secret number: ")
+    if len(sys.argv) >= 3:
+        originalLink = sys.argv[1]
+        number = sys.argv[2]
+    else:
+        originalLink = input("Enter Gradesource class link: ")
+        number = input("Enter secret number: ")
 
     # Setsup soup
     soup = setupSoup(originalLink)
@@ -134,7 +139,7 @@ def main():
     while option != 'q':
         printMenu(menuTable)
 
-        option = raw_input("Enter selection (q to quit): ")
+        option = input("Enter selection (q to quit): ")
         
         if option != 'q':
             # Switches link
@@ -164,7 +169,7 @@ def main():
             # Prints the standings
             printStandings(finalTable)
             
-            option = raw_input("Press any key to return to the menu (q to quit)... ")
+            option = input("Press any key to return to the menu (q to quit)... ")
 
 
 main()
